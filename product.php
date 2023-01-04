@@ -28,6 +28,10 @@ function get20BestSellingProductsID($country_id, $category_id) {
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/highlights/" . $country_id . "/category/" . $category_id);
 
+	
+	error_log("Consulta: ". "https://api.mercadolibre.com/highlights/" . $country_id . "/category/" . $category_id, 0);
+	error_log("Cabecera: ". "Authorization: Bearer " . $_COOKIE['access_token'], 0);
+
 	$headers = array(
 		    "Authorization: Bearer " . $_COOKIE['access_token']
 	);
