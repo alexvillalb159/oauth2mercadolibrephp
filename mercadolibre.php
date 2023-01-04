@@ -1,3 +1,6 @@
+
+
+
 <?php
 /**
  * @author      Alexander Villalba <alexvillalb159@gmail.com>
@@ -10,203 +13,21 @@
 // Documentación para autenticar en la API de mercado libre.
 // https://developers.mercadolibre.com.ve/es_ar/autenticacion-y-autorizacion/
 
-// Requisitos del programa para correr php-curl
-
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-<title>API Mercado Libre</title>
-
-<style>
-	body {
-		
-		margin-top:20px;
-		margin-left: 20px;
-		background-color: aquamarine;
-		display: grid;
-		grid-template-columns: 900px 200px;
-		justify-content: center;
-		grid-auto-rows: 35px;
-	}
+// Requisitos del programa para correr:  php-curl
 
 
-	div.line {
-		grid-column-start: 1;
-		grid-column-end: 3;
-		display: flex;
-		align-items: center;
-	}
+if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')   
+         $url = "https://";   
+else  
+         $url = "http://";   
 
-	div.titule2 {
-		grid-column-start: 1;
-		grid-column-end: 2;
-		text-align: center;
-		font-weight: bold;
-	}
+$CurPageURL = $url . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-	h4 {
-		text-align: center;
-		grid-column-start: 1;
-		grid-column-end: 2;
-	}
+$pos=strrpos($CurPageURL, '/');
+
+$URLAPP=substr($CurPageURL, 0, $pos);
 
 
-	form {
-		
-		display: grid;
-		grid-template-columns: 320px 320px;
-		grid-column-start: 1;
-		grid-column-end: 2;
-		grid-auto-rows: 30px;
-		grid-row-start: 3
-
-	} 
-	
-	
-	label {
-
-  		text-align: end;
-  		margin-right: 5px;
-	}	
-	select {
-		width:200px;
-		margin-bottom: 6px;	
-		
-	}
-	input[type=text] {
-
-		width: 300px;
-		margin-bottom: 6px;
-		
-	}
-	input.post {
-		grid-column-start: 1;
-  		grid-column-end: 2;
-  		width: 150px;
-  		margin: auto;
-	
-	}
-	
-	table.products {
-		display: table;
-		width: 700px;
-		border: 1px solid black;
-		border-radius: 10px;
-		grid-column-start: 1;
-  		grid-column-end: 2;
-
-	}
-	table.products th {
-		border: 1px solid black;
-		/* border-radius: 10px; */
-
-	}
-	
-	table.products td {
-		border: 1px solid black;
-		/* border-radius: 10px; */
-
-	}
-	
-</style>
-
-<script>
-	var urlroot = window.location.origin; 
-	var country_codes = {
-		"Argentina": "MLA", 
-		"Brasil": "MLB", 
-		"Colombia": "MCB", 
-		"Costa Rica": "MCR", 
-		"Ecuador": "MEC",
-		"Chile": "MLC", 
-		"México": "MLM", 
-		"Panamá": "MPA", 
-		"Perú": "MPE", 
-		"Portugal": "MPT", 
-		"República Dominicana": "MRD",
-		"Uruguay": "MLU", 
-		"Venezuela": "MLV"
-	};
-
-	function countryOnChangeEvent()
-	{
-		window.esperar.showModal();
-
-		var selectedValue = document.getElementById('country').value;
-		// Hace una solicitud sincrona
-		let xhr = new XMLHttpRequest();
-		try {
-			xhr.open("GET", urlroot + "/20masvendidos.php?" + "country_id=" + country_codes[selectedValue] + "&category_id=" + 
-				country_codes[selectedValue] + "1648", false);
- 
-
-
-
-			xhr.send(); 
-
-			if (xhr.readyState === 4) {
-	     			console.log(xhr.responseText);
-				products = JSON.parse(xhr.responseText);
-				printProducts(products);
-
-			}
-		} catch (err ) {
-			console.log("Exceción: " + err);
-		}
-		
-		window.esperar.close();
-		// Quita el foco de la lista de países 
-		document.getElementById("country").blur();
-		//document.getElementById("products").focus();;
-
-		
-	}
-	
-	function printProducts(products) {
-		var table = document.getElementById("products");
-		deleteTable(table);
-
-		for(i=0; i < products.length; i++) {
-			// Create an empty <tr> element and add it to the 1st position of the table:
-			var row = table.insertRow(i+1);
-
-			if( typeof(products[i].error) === "undefined") {
-				// Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-				var position = row.insertCell(0);
-				var id = row.insertCell(1);
-				var title = row.insertCell(2);
-				var price = row.insertCell(3);
-				
-				position.innerHTML = "" + (i+1);
-				id.innerHTML = products[i].id; 
-				title.innerHTML = products[i].title; 
-				price.innerHTML = products[i].price; 
-			} else {
-				var position = row.insertCell(0);
-				var id = row.insertCell(1);
-				position.innerHTML = "" + (i+1);
-				id.innerHTML = products[i].message; 
-			
-			}
-		}
-	
-	}
-	
-	function deleteTable(table) {
-		while(table.rows.length > 1 ) table.deleteRow(1);
-	}
-
-</script>
-
-
-<?php
-
-
-
-
-$URLAPP="";
 
 
 $authSites = array(
@@ -278,9 +99,6 @@ function printProducts ($products ) {
 
 
 
-
-
-
 function getCategories($country_code) {
 
 	$ch = curl_init();
@@ -290,7 +108,7 @@ function getCategories($country_code) {
 
 	curl_setopt($ch, CURLOPT_URL, 'https://api.mercadolibre.com/sites/' . $country_code . '/categories');
 	$headers = array(
-		    "Authorization: Bearer " . $GLOBALS['ACCESSTOKEN']
+		    "Authorization: Bearer " . $_COOKIE['access_token']
 	);
   
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
@@ -304,7 +122,7 @@ function getCategories($country_code) {
 function printHTMLSelectCountry() {
 	global $authSites;
 	
-	echo '<label for="fname"><b>País:</b></label>';
+	echo '<label class="country" for="fname"><b>País:</b></label>';
 	
 	echo '<select name="country" id="country" required>';
 	echo '	<option value="" selected></option>';
@@ -317,11 +135,23 @@ function printHTMLSelectCountry() {
 
 
 
-if(isset($_GET['allright'])) {
+
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>API Mercado Libre</title>
+
+<?php
+if(isset($_GET['allright']))  {
 
 	setcookie("client_id", $_POST['client_id'], time() + (86400 * 30), "/");
 	setcookie("client_secret", $_POST['client_secret'], time() + (86400 * 30), "/");
 	setcookie("country", $_POST['country'], time() + (86400 * 30), "/");
+
+
 
 
 	echo "<meta http-equiv='Refresh' content='0; url=\"" . $authSites[$_POST['country']]['url'] . "/authorization?response_type=code&client_id=" ;
@@ -333,26 +163,6 @@ if(isset($_GET['allright'])) {
 	exit("");
 	
 }
-
-
-?>
-
-<!--
-<script type="text/javascript">
-	var i = 10;
-
-
-</script>
--->
-
-
-</head>
-
-<body>
-
-
-
-<?php
 
 if(isset($_GET['code'])) {
 	
@@ -378,39 +188,416 @@ if(isset($_GET['code'])) {
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
 
-
-
-
-			
-
 	$result = curl_exec($ch);
 
 	if(curl_error($ch)) {
 		#fwrite($fp, curl_error($ch));
 		echo  curl_error($ch);
+		echo "</head>"; 
+		echo "</html>";
+		exit("");
+	}
+
+	$resultjson = json_decode($result);
+
+	setcookie("access_token", $resultjson->access_token, time() + (86400 * 30), "/");
+	curl_close($ch);
+
+}
+
+
+?>
+
+<style>
+	body {
+		
+		margin-top:20px;
+		margin-left: 20px;
+		margin-right:200px;
+		background-color: aquamarine;
+		display: grid;
+		grid-template-columns: 500px 500px;
+		/* grid-auto-rows: 35px; */
+	}
+
+	div.form {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		display: flex;
+		align-items: center;
+	}
+
+
+	div.line {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		display: flex;
+		align-items: left; 
+	}
+
+	div.error {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		display: flex;
+		align-items: center;
+		font-size: 20px;
+		color: #fe0000;
+		font-weight: bold;
+	}
+
+	div.titule2 {
+		grid-column-start: 1;
+		grid-column-end: 3;
+		text-align: center;
+		font-weight: bold;
+	}
+
+	h4 {
+		text-align: center;
+		grid-column-start: 1;
+		grid-column-end: 3;
+	}
+
+
+	form.autenticacion {
+		
+		display: grid;
+		grid-template-columns: 320px 320px;
+		grid-column-start: 1;
+		grid-column-end: 3;
+		/*grid-auto-rows: 30px; */
+		grid-row-start: 3;
+		grid-row-end: 7;
+		justify-content: center;
+
+	} 
+	
+	
+	label {
+
+  		text-align: end;
+  		margin-right: 5px;
+	}
+		
+	select {
+		width:200px;
+		margin-bottom: 6px;	
+		
+	}
+
+
+	input[type=text] {
+
+		width: 300px;
+		margin-bottom: 6px;
+		
+	}
+	input.post {
+		grid-column-start: 1;
+  		grid-column-end: 2;
+  		width: 150px;
+  		margin: auto;
+	
+	}
+	
+	table.products {
+		display: table;
+		width: 700px;
+		border: 1px solid black;
+		border-radius: 10px;
+		grid-column-start: 1;
+  		grid-column-end: 3;
+
+	}
+	table.products th {
+		border: 1px solid black;
+		/* border-radius: 10px; */
+
+	}
+	
+	table.products td {
+		border: 1px solid black;
+		/* border-radius: 10px; */
+
+	}
+	
+</style>
+
+<script type="text/javascript">
+
+	var urlroot = window.location.origin + window.location.pathname.substring(0, window.location.pathname. lastIndexOf("/")); 
+	var country_codes = {
+		"Argentina": "MLA", 
+		"Brasil": "MLB", 
+		"Colombia": "MCB", 
+		"Costa Rica": "MCR", 
+		"Ecuador": "MEC",
+		"Chile": "MLC", 
+		"México": "MLM", 
+		"Panamá": "MPA", 
+		"Perú": "MPE", 
+		"Portugal": "MPT", 
+		"República Dominicana": "MRD",
+		"Uruguay": "MLU", 
+		"Venezuela": "MLV"
+	};
+
+
+	
+	function printProducts(products) {
+		var table = document.getElementById("products");
+		deleteTable(table);
+
+		for(i=0; i < products.length; i++) {
+			// Create an empty <tr> element and add it to the 1st position of the table:
+			var row = table.insertRow(i+1);
+			if(products[i] != null) {
+
+				var position = row.insertCell(0);
+				var id = row.insertCell(1);
+				var title = row.insertCell(2);
+				var price = row.insertCell(3);
+
+				if( typeof(products[i].error) === "undefined") {
+					// Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+					
+					position.innerHTML = "" + (i+1);
+					id.innerHTML = products[i].id; 
+					title.innerHTML = products[i].title; 
+					price.innerHTML = products[i].price; 
+				} else {
+					position.innerHTML = "" + (i+1);
+					//id.innerHTML = products[i].id; 
+					title.innerHTML = products[i].message; 
+					//price.innerHTML = products[i].price; 
+				
+				}
+				
+				continue;
+			}
+
+			var position = row.insertCell(0);
+			var id = row.insertCell(1);
+			position.innerHTML = "" + (i+1);
+			if(products[i] != null) id.innerHTML = products[i].message; 
+			else id.innerHTML = "Error";
+			
+
+		}
+	
+	}
+	function deleteTable(table) {
+		while(table.rows.length > 1 ) table.deleteRow(1);
+	}
+
+	function printSelectCategories(categories) {
+		var filtros = document.getElementById('filtros');
+		addfilter(filtros, categories);
+		
+
+	}
+
+
+	function addfilter(filtros, categories) {
+		var newhtml = 	'<select name="filtro" id="' + filtros.childNodes.length   + '"  readonly disabled>' +
+			 	'	<option value="" selected></option>';
+
+		for(i=0; i < categories.length; i++) {
+			newhtml = newhtml + "<option value='"  + categories[i].id + "'>"  + categories[i].name + "</option>"; 
+		} 
+		newhtml += '</select>';
+		
+		filtros.insertAdjacentHTML("beforeend", newhtml);
+
+		
+		var country_code = country_codes[document.getElementById('country').value];
+		
+		filtros.childNodes[filtros.childNodes.length-1].value = country_code + "1648";
+		updateProducts(); 
+	
+	
+	}
+
+	function removeAllfilters() {
+		var filtros = document.getElementById('filtros');
+
+		for(i=filtros.childNodes.length - 1; i >=2; i--) {
+			filtros.removeChild(filtros.childNodes[i]);
+		}
+		
+	
+	}
+	function updateProducts() {
+		var categorie_id = getCategorieID();
+		var country = document.getElementById('country').value;
+		var diverror = document.getElementById('error');
+		
+		// Hace una solicitud sincrona
+		let xhr = new XMLHttpRequest();
+
+		xhr.open("GET", urlroot + "/20masvendidos.php?" + "country_id=" + country_codes[country] + "&category_id=" + 
+				categorie_id, false);
+		xhr.send(); 
+
+		if (xhr.readyState === 4) {
+     			//console.log(xhr.responseText);
+			products = JSON.parse(xhr.responseText);
+			if( typeof(products.error) != "undefined") {
+				var table = document.getElementById("products");
+				deleteTable(table);
+				diverror.innerHTML = "Error: " + products.message;
+				return;
+			}
+			diverror.innerHTML = "";
+			printProducts(products);
+
+		} 
+
+
+
+	
+	
+	}
+	function getCategorieID() {
+		var size = document.getElementById('filtros').childNodes.length;
+		var lastfilter = document.getElementById('filtros').childNodes[size-1];
+		if(lastfilter.value == "") {
+			lastfilter = document.getElementById('filtros').childNodes[size-2];
+		}
+		return lastfilter.value;
+	}
+
+	function countryOnChangeEvent()
+	{
+		removeAllfilters();
+		var diverror = document.getElementById('error');
+		diverror.innerHTML = "";
+		window.esperar.showModal();
+		var country = document.getElementById('country').value;
+		
+		
+		// Borra la tabla de productos
+		var table = document.getElementById("products");
+		deleteTable(table);		
+
+		// Quita el foco de la lista de países 
+		//document.getElementById("country").blur();
+		//document.getElementById("products").focus();;
+
+		var categories = getCategories();
+		printSelectCategories(categories); 
+		window.esperar.close();
+
+		
+	}
+	/*	
+	function getCategories(country_code) {
+	
+		var country = document.getElementById('country').value;
+
+		let xhr = new XMLHttpRequest();
+		try {
+
+			xhr.open("GET", 'https://api.mercadolibre.com/sites/'  + country_codes[country] + '/categories', false);
+			xhr.setRequestHeader("Authorization",  "Bearer " + <php echo "'" .  $_COOKIE['access_token']  . "'"; ?>); 			
+			xhr.send(); 
+			if (xhr.readyState === 4) {
+	     			//console.log(xhr.responseText);
+				categories = JSON.parse(xhr.responseText);
+			}
+		} catch (err ) {
+			console.log("Excepción: " + err);
+		}
+		return categories;
+	}
+	*/
+
+	function getCategories() {
+	
+		var country = document.getElementById('country').value;
+
+		let xhr = new XMLHttpRequest();
+		try {
+
+			xhr.open("GET", urlroot + "/categories.php?country_id=" +  country_codes[country] , false);
+
+			xhr.send(); 
+			if (xhr.readyState === 4) {
+	     			//console.log(xhr.responseText);
+				categories = JSON.parse(xhr.responseText);
+			}
+		} catch (err ) {
+			console.log("Excepción: " + err);
+		}
+		return categories;
+	}
+
+
+	
+</script>
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+<?php
+
+if(isset($_GET['code'])) {
+	/*	
+
+	if(curl_error($ch)) {
+		#fwrite($fp, curl_error($ch));
+		echo  curl_error($ch);
+		exit("");
 	}
 	else {
 		$resultjson = json_decode($result);
-
-		setcookie("access_token", $resultjson->access_token, time() + (86400 * 30), "/");
-
 	}
 
+	setcookie("access_token", $resultjson->access_token, time() + (86400 * 30), "/");
 	curl_close($ch);
+	*/
+
+
 	
-	echo "<h4>Mercado Libre API</h4>";  
+	echo "<h4>Mercado Libre API</h4>";
+
+	echo "
+	<style>
+		label {
+
+	  		text-align: end;
+	  		margin-top: 8px;
+		}
+			
+		select {
+			width:200px;
+			margin-top: 5px;
+			
+		}
+	</style>
+	";
+
+
 	echo "<div class='line' ><p><b>APP ID:</b> " .  $_COOKIE['client_id'] . "</p></div>";  
 	echo "<div class='line' ><p><b>APP token:</b> " . $resultjson->access_token . "</p></div>";  
-	echo "<div class='line'>";
+	echo "<div class='line' id='filtros'>";
 	printHTMLSelectCountry();
 	echo "</div>";
 
 	
-	echo "<script>";
-	echo "document.getElementById('country').addEventListener('change', countryOnChangeEvent);"; 
-	echo "</script>";
+	echo 	"<script>
+		 	document.getElementById('country').addEventListener('change', countryOnChangeEvent);
+		 </script>";
 	
-	echo "<div class='titule2'>20 productos más vendidos de Computación:</div>";
+	echo "<div class='titule2'>20 productos más vendidos:</div>";
 
 	echo 	"<table class='products' id='products'>";
 	echo 	"<tr>" . 
@@ -442,6 +629,8 @@ if(isset($_GET['code'])) {
 
 
 
+	echo "<div class='error' id='error'>";
+	echo "</div>";
 	
 	echo "</body></html>";
 	exit("");
@@ -455,19 +644,27 @@ if(isset($_GET['code'])) {
 
 <h4>Mercado Libre API</h4>
 
-<form action="mercadolibre.php?allright" method="post">
+<form class="autenticacion" action="mercadolibre.php?allright" method="post">
+
+	<label class="form" for="urlapp"><b>URL APP:</b></label>
+	<textarea id="urlapp" placeholder='AYUDA' autocomplete="bday"  readonly></textarea>
+	<!-- <input type="text" id="urlapp" name="client_id"> -->
+
 	<?php 
 		printHTMLSelectCountry();
 	?>
 
-	<label for="fname"><b>Client ID:</b></label>
-	<input type="text" id="client_id" name="client_id" required>
-	<label for="client_secret"><b>Client Secret:</b></label>
+	<label class="form" for="fname"><b>Client ID:</b></label>
+	<input type="text" id="client_id" name="client_id"  required>
+	<label class="form" for="client_secret"><b>Client Secret:</b></label>
 	<input type="text" id="client_secret" name="client_secret" required>
-	<div class="line">
+	<div class="form">
 		<input type='submit' class="post" name="post" value="Enviar">
 	</div>
-
+	<script>
+		document.getElementById("urlapp").value = <?php echo "'" . $CurPageURL . "'"; ?> ;
+	</script>
+	
 </form> 
 
 </body>
